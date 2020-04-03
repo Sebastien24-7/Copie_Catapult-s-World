@@ -2,45 +2,69 @@ import java.awt.event.*;
 import java.awt.*;
 import javax.swing.*;
 
-public class Fenêtre extends JFrame implements MouseListener, ActionListener {
+public class Fenêtre extends JFrame implements MouseListener, Runnable {
 
-	//================SVVVPPPP pas bouger le timer j'ai tenté plein de trucs et c'est trop relou le plus simple
-	//c'est qu'il reste là !!!!!!!!!!!!!!!!
-	
-	private long temps ; //variable temps à réutiliser dans toutes les classes pour avoir la même
-	private int interval = 200; //vitesse à laquelle le temps s'écoule
-	private Timer timer;
-	
-	
-	private Panneau world = new Panneau(timer);
-	
+
+    /*double interpolation = 0;
+    final int TICKS_PER_SECOND = 25;
+    final int SKIP_TICKS = 1000 / TICKS_PER_SECOND;
+    final int MAX_FRAMESKIP = 5;*/
+    final int FRAMERATE = 60;
+ 	private int sleepDuration = 17; // originally 17 (it's 1/60 = 17 ms )
+ 	private int temps;
+	private int width = 1000;
+	private int height = 1000;
+	Thread thread ;
+
+	private int scoreNb ;
+	private JLabel score ;
+	private Panneau world = new Panneau();
+
 	public Fenêtre () {
+		// Definition of the windows properties
 		super("Catapult's World") ;
-		this.setSize(1000, 1000);
+		this.setSize(this.width, this.height);
 	    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    this.setLocationRelativeTo(null);
 	    this.setResizable(true);
-		addMouseListener(this);	
 
-		
-		temps=0;
-		timer = new Timer(interval, this); 
-		timer.start();
 
+			// Score Display
+		score =  new JLabel() ;
+		score.setText("SCORE : ");
+		score.setFont(new Font("Serif", Font.BOLD, 20));
+		score.setBounds(20, 750 , 150 , 80);
+		world.add(score);
+
+		// Use of thread instead of Timer , with Runnable interface to run only one instance (one loop) for the whole game
+		thread = new Thread(this); // we use it so as to do several operations at the same time 
+		thread.start(); //indicates that our loop is ready to be launched 
+		temps=0; //Initialization of time
+
+		// Addition of the panel "world" to fenêtre
 		this.setContentPane(world);
 		this.setVisible(true);
+
+		addMouseListener(this);
 	}
-	public long getTemps() {
-		return temps;
+
+	public int getWidth(){
+		return this.width;
+	}
+
+	public int getHeight(){
+		return this.height;
+	}
+
+	public Panneau getPanel () {
+		return this.world ;
 	}
 
 
+	// Display position of the mouse when clicking (future use to throw the projectile)
 	@Override
 	public void mouseClicked(MouseEvent e) {
 
-		/*if(!timer.isRunning()) {
-			timer.start();
-		}*/
 		String s = "| Position de la souris : " + e.getX() +" x et " + e.getY() + " y ";
 		System.out.println(s);
 		repaint();
@@ -65,8 +89,7 @@ public class Fenêtre extends JFrame implements MouseListener, ActionListener {
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		/*String s = "| Position de la souris : " + e.getX() +" x et " + e.getY() + " y ";
-		System.out.println(s);
+/*
 		if(e.getX()<= (int)(world.getProj().x+15) && e.getX()>= (int)(world.getProj().x-15) ) {
 			if(e.getY()<= (int)(world.getProj().y+15) && e.getY()>=(int)(world.getProj().y-15)) {
 				world.getProj().deplaceX(this);
@@ -77,30 +100,33 @@ public class Fenêtre extends JFrame implements MouseListener, ActionListener {
 */
 	}
 
+	// Main loop
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		
-		this.temps += interval;
-		this.setTitle("Catapult's World :" + temps / 1000);
-		int realtime = (int) (temps/1000) ;
-		
-		//début de code pour essayer la collision
-		
-		//world.getProj().action(realtime); //à travailler pour équations horaires
-		
-		//méthode pour travailler avec collision
-		world.getProj().deplaceX(this); 
-		world.getProj().deplaceY(this);
-		world.gravityAction(realtime);
-		System.out.println(realtime + "s");
-		
-		try {
-			Thread.sleep(1);
-		  } catch (InterruptedException t) {
-			t.printStackTrace();
-		  }
-			repaint();
+	public void run() {
 
-	}
+            while(true) {
+            	//world.getProj().deplaceX(this);
+            	//world.getProj().deplaceY(this);
+							world.getProj().move();// Moves the projectile
+						//	world.getProj().setPosition(100, 100);// Test to see drawing
+
+
+            	score.setText("SCORE : " + scoreNb); //Update label score
+
+            	repaint(); // Redraw elements
+
+				//Avoid Slow down using the game loop
+            	try {
+            		Thread.sleep(sleepDuration);
+            	} catch (InterruptedException e) {
+            		e.printStackTrace();
+            	}
+            }
+
+
+
+    }
+
+
 
 }

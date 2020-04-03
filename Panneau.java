@@ -1,145 +1,123 @@
 import java.awt.event.*;
+import java.util.Iterator;
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.text.html.parser.Element;
 
 public class Panneau extends JPanel implements ActionListener, MouseMotionListener {
-   
+
 	private Terrain ter = new Terrain();
-	private final double GRAVITY = 9.8 ;
-	private Projectile proj;
+	private final double GRAVITY = 2.0 ;
+	private static Projectile proj;
 	private Cercle c1;
-	private APoint p = new APoint (50,600);
-	private double limite_sol=0.2;
+	private APoint p = new APoint (50,50);
+
+	private static double limite_sol=0.2;
 	private double dist ;
-	private double dist2 ;
 	private double angle = 30.0;
-	
-	//ce timer reprend exactement le même que dans fenêtre donc modif dans fenêtre si besoin
 	private long temps;
-	private int interval = 200;
-	Timer monChrono ;
-	
-	
-	public Panneau(Timer timer){
-		
-		monChrono=timer;
-		proj = new Projectile(p,20.0, 20.0, 30.0 ,Color.black );
+
+
+	public Panneau(){
+
+		proj = new Projectile(p,5.0, 5.0, 30.0 ,Color.black );
+		proj.setPosition(100, 400);
+		proj.setSpeed(10, 45);
 		c1 = new Cercle(new APoint(600,600),15.0,Color.red);
+
+		this.setLayout(null);
 		addMouseMotionListener(this);
 	}
-	
-	public Projectile getProj() {
+
+	public static Projectile getProj() {
 		return proj;
 	}
+	public static double getGround() {
+		return limite_sol;
+	}
+
 
 	public void paintComponent(Graphics g){
-		//remplissage ciel
-		//g.setColor(Color.cyan);
-		//g.fillRect(0,0,getWidth(),getHeight());
-		
+
 		Image fond = Toolkit.getDefaultToolkit().getImage("./images/image_fond_nuage.png");
 					g.drawImage(fond, 0, 0, this.getWidth(), this.getHeight(), this);
 		//Image bottom = Toolkit.getDefaultToolkit().getImage("./images/terre2.png");
 		//g.drawImage(bottom, 0, 750, this.getWidth(),this.getHeight(), this);
-		
+
 		g.setColor(Color.green);
 		g.fillRect(0,(int)((1-limite_sol)*this.getHeight()),this.getWidth(),(int)((limite_sol)*this.getHeight()));
-	
-		/*===================== Affichage objets*/
-					
+
+		/*===================== Objects Display*/
+
 		proj.dessiner(g);
 		c1.dessine(g);
 
-		/*=================================*/
-		//affichage des matériaux et leurs textures en parcourant la liste
+		for (int i = 0; i < Terrain.listEnnemies.size(); i++) {
+			Ennemy perso1 = Terrain.listEnnemies.get(i); //local variable to avoid to much code
+			g.drawImage(perso1.img, (int)perso1.x, (int)perso1.y,this); //affichage alien
+			perso1.gravityAction(17);
+			perso1.death();
+			
+		}
+	
+		//=============Material Blocks Display====================
+
+		for (int i = 0; i < Terrain.listMateriaux.size(); i++) {
+			
+			g.drawImage(Terrain.listMateriaux.get(i).img, (int)Terrain.listMateriaux.get(i).x,(int)Terrain.listMateriaux.get(i).y, this);
+
+			//=============gravity
+			Terrain.listMateriaux.get(i).gravityAction(17);
+			//System.out.println(Terrain.listMateriaux.get(i).y + " my position ");
+			//System.out.println((double)(this.getHeight()*(1-limite_sol)));
+			Terrain.listMateriaux.get(i).destruction();
+			//System.out.println("My position en y" + Terrain.listMateriaux.get(i).y + "Mon centre x et y " + Terrain.listMateriaux.get(i).centreX +"||"+ Terrain.listMateriaux.get(i).centreY);
+			
+		}
 		
-		for (Matériaux element : ter.listMateriaux) {
-			g.drawImage(element.img, (int)element.x,(int)element.y, this);
+		//============ Collision Computation Call===========
+		this.collisionDetect();
+		//===============
+		Toolkit.getDefaultToolkit().sync();
 
 		}
-		
-		//============CALCUL COLLISION=========== 
-		this.collisionDetect();
-	
-		//==========================
-		
-		}
+
+
+
 	//============CALCUL COLLISION=========== (juste changement de couleur pour l'instant et disparition case)
 	public void collisionDetect() {
-		
+
 		dist = proj.getDistance(c1.centre.x, c1.centre.y);
-		System.out.println(dist + " la distance entre les 2 cercles ");
-		
+		//System.out.println(dist + " la distance entre les 2 cercles ");
+
 		//juste pour checker et s'amuser avec le drag
 		if(dist <= c1.rayon + proj.getRayon()) {
 			proj.couleur = c1.maCouleur ;
 		}
-		
-		//parcourt toute la liste de matériaux et les fait disparaître à la rencontre du projectile
-		
-		for (Matériaux element : ter.listMateriaux) {
-			dist2 = proj.getDistance(element.centreX, element.centreY);
-			
-			if(dist2 <= 25.0 + proj.getRayon()) {
-				element.img = null;
-				proj.couleur = Color.green ;
-				System.out.println(dist2 + " la distance entre le projectile et l'objet ");
-			}	
-		}
-	
-		
-		
+
 		//========Limite de la fenêtre
 		if(proj.x - proj.getRayon() <= 0 || proj.x + proj.getRayon() >= this.getWidth() ) {
 			proj.dx = - proj.dx ;
 		}
-		if(proj.y - proj.getRayon() <= 0 || proj.y + proj.getRayon() >= (this.getHeight()-this.limite_sol*this.getHeight()) ) {
+		if(proj.y - proj.getRayon() <= 0 || proj.y + proj.getRayon() >= (this.getHeight()-Panneau.limite_sol*this.getHeight()) ) {
 			proj.dy = - proj.dy ;
 		}
-		
-		
-	}
-  
-	public void gravityAction(long time){
-		this.temps = time;
-		
-		for (Matériaux element : ter.listMateriaux) {
-			
-			if(element.y + 40.0 <= (double)(this.getHeight()*(1-limite_sol))) {
-				
-				for (Matériaux m : ter.listMateriaux) {
-					if(element != m && element.getDistance(m.x, m.y) > 100.0 && m.getDistance(element.x, element.y) > 100.0) {
-						element.y += this.GRAVITY ; 
-						System.out.println(temps + "en s");
-						repaint();
-					}
-				}
 
-			}
-		}
-
-		  try {
-			Thread.sleep(100);
-		  } catch (InterruptedException e) {
-			e.printStackTrace();
-		  }
-			
 	}
-	  
+
 	public void actionPerformed(ActionEvent e){
-		
+
 	}
 
-	//==========================
-	//méthode pour bouger le cercle rouge
+	//To drag the red cercle
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		// TODO Auto-generated method stub
 		c1 = new Cercle(new APoint(e.getX(),e.getY()),15,Color.red);
-		
+
 	}
-	
-	//méthode détectant le contact projectile avec la souris et changeant la couleur
+
+	//Detect collision between the mouse and the projectile
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		// TODO Auto-generated method stub
@@ -147,9 +125,8 @@ public class Panneau extends JPanel implements ActionListener, MouseMotionListen
 			System.out.println("The mouse has collided");
 			proj.couleur = new Color(50, 50, 50);
 		}
-	
 
 	}
-	
-		
+
+
 	}
