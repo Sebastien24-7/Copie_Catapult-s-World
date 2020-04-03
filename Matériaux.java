@@ -49,7 +49,7 @@ public class Matériaux extends Object { //incorporer les résistances dans les 
 		APoint p = new APoint(this.x+25.0,this.y+25.0);	
 		return p;
 	}
-	
+
 	//start of gravity================== not finished !
 	//
 	public void gravityAction(int deltaTime){
@@ -60,11 +60,11 @@ public class Matériaux extends Object { //incorporer les résistances dans les 
 		this.dy += this.GRAVITY * realTime ;
 		
 		if(!this.stable) {
-			if (this.y + 50.0 < 670.0 ) {
+			if (this.y + 50.0 < Panneau.getGround()+10.0 ) {
 				this.y += this.dy*realTime ;
 			} 
-			else if(this.getDistanceY(this.y + (this.dy*realTime)) >= (670.0 - (this.y + 50.0))){
-				this.y = 620.0 ;
+			else if(this.getDistanceY(this.y + (this.dy*realTime)) >= ((Panneau.getGround()+10.0) - (this.y + 50.0))){
+				this.y = (Panneau.getGround()+10.0)-50.0 ;
 				this.stable = true ;
 				Terrain.listStable.add(this);
 			}

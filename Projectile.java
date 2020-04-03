@@ -105,7 +105,6 @@ public class Projectile extends Object{
  		}
     	//System.out.println("cercle deplace");
 	}
-
 	public void move(){
 		this.dy -= GRAVITY;
 		this.x += dx;
@@ -113,27 +112,76 @@ public class Projectile extends Object{
 	}
 
 	// To stop the ball when it hits an edge and bounce on the bottom
-	public void bounce(Fenêtre fen){
-		int h ;
+	public void bounce(Panneau pan){
+<<<<<<< Upstream, based on branch 'master' of https://github.com/timwinner/catapult.git
+			if (this.y > pan.getHeight()){ // Ground
+				this.dy = -(this.dy*0.8); // bounce with 80% of initial speed
+				System.out.println("collision of proj with GROUND with x="+this.x+" and y="+this.y);  //Debug print
+				System.out.println(pan.getWidth()+" x "+pan.getHeight());
+=======
+		int h = (int)Panneau.getGround() ;
+		int w = 1000 ;
 		
-		if(fen.getHeight()==1000) {
-			h = fen.getHeight();
+		/*
+		if(pan.getHeight()==670) {
+			h = pan.getHeight();
 		} else {
-			h = 1000;
+			h = 670;
 		}
+		*/
 		
-			if (this.y > h){
-
+		
+		if (this.y > h){ // Ground
+			this.dy = -(this.dy*0.8); // bounce with 80% of initial speed
+			System.out.println("collision of proj with GROUND with x="+this.x+" and y="+this.y);  //Debug print
+			System.out.println(w +" x "+h);
+			if(this.y > h + this.rayon) { //Avoid the projectile to go anywhere, ends its displacement
+				this.y = 680;
+				this.dx = 0.2* this.dx ;
+>>>>>>> 4123009 Try to correct Tim's bounce+ Redefinition of all the comments in English (need to add better computation of friction for the bounce depending on the objects, need to correct gravity so that everything always fall) I also modify the ground is set to 660 and did a function to get it because the limite_sol wasn't so fitting..
 			}
-			if (this.y - this.rayon < 0){
-
+<<<<<<< Upstream, based on branch 'master' of https://github.com/timwinner/catapult.git
+			if (this.y - this.rayon < 0){ // Roof
+				this.dy = 0;
+				this.y = this.rayon;
+				System.out.println("collision of proj with ROOF with x="+this.x+" and y="+this.y);
+				System.out.println(pan.getWidth()+" x "+pan.getHeight());
 			}
 			if (this.x - this.rayon < 0){
-
+					this.x = this.rayon;
+					this.dx = 0;
+					System.out.println("collision of proj with LEFT EDGE with x="+this.x+" and y="+this.y);
+					System.out.println(pan.getWidth()+" x "+pan.getHeight());
 			}
-			if (this.x + this.rayon > h) {
-
+			if (this.x + this.rayon > pan.getWidth()) {
+				this.x = pan.getHeight() - this.rayon;
+				this.dx = 0;
+				System.out.println("collision of proj with RIGHT EDGE with x="+this.x+" and y="+this.y);
+				System.out.println(pan.getWidth()+" x "+pan.getHeight());
 			}
+=======
+		}
+		if (this.y - this.rayon < 0){ // Roof
+			this.dy = 0;
+			this.y = this.rayon;
+			System.out.println("collision of proj with ROOF with x="+this.x+" and y="+this.y);
+			System.out.println(w +" x "+h);
+		}
+		if (this.x - this.rayon < 0){
+
+				this.x = this.rayon;
+				this.dx = -this.dx*0.7;
+				System.out.println("collision of proj with LEFT EDGE with x="+this.x+" and y="+this.y);
+				System.out.println(w +" x "+h);
+		}
+		if (this.x + this.rayon > w) {
+			this.x = pan.getHeight() - this.rayon;
+			this.dx = -this.dx*0.7;
+			System.out.println("collision of proj with RIGHT EDGE with x="+this.x+" and y="+this.y);
+			System.out.println(w +" x "+h);
+		}
+		
+>>>>>>> 4123009 Try to correct Tim's bounce+ Redefinition of all the comments in English (need to add better computation of friction for the bounce depending on the objects, need to correct gravity so that everything always fall) I also modify the ground is set to 660 and did a function to get it because the limite_sol wasn't so fitting..
 	}
 	//===========================
 

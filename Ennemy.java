@@ -38,7 +38,6 @@ public class Ennemy extends Object {
 		refAlien[3]="./images/alien3.png";
 		refAlien[4]="./images/alien4.png";
 		refAlien[5]="./images/alien5.png";
-		
 		refAlien[6]="./images/alien_boss.png";
 		
 		return refAlien;
@@ -48,10 +47,10 @@ public class Ennemy extends Object {
 		
 		
 		if(!this.stable) {
-			if (this.y + 50.0 < 670.0 ) {
+			if (this.y + 50.0 < Panneau.getGround()+10.0 ) {
 				this.y += this.GRAVITY ;
 			} 
-			else if(this.getDistanceY(this.y + this.GRAVITY) >= (670.0 - (this.y + 50.0))){
+			else if(this.getDistanceY(this.y + this.GRAVITY) >= ((Panneau.getGround()+10.0) - (this.y + 50.0))){
 				this.y = 620.0 ;
 				this.stable = true ;
 			}

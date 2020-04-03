@@ -107,13 +107,31 @@ public class Fenêtre extends JFrame implements MouseListener, Runnable {
             while(true) {
             	//world.getProj().deplaceX(this);
             	//world.getProj().deplaceY(this);
+<<<<<<< Upstream, based on branch 'master' of https://github.com/timwinner/catapult.git
+              world.getProj().bounce(world); // Detects edges of terrain
 							world.getProj().move();// Moves the projectile
+
 						//	world.getProj().setPosition(100, 100);// Test to see drawing
+=======
+            	world.getProj().bounce(world); // Detects edges of terrain
+				world.getProj().move();// Moves the projectile
+
+<<<<<<< Upstream, based on branch 'master' of https://github.com/timwinner/catapult.git
+			//	world.getProj().setPosition(100, 100);// Test to see drawing
+>>>>>>> 4123009 Try to correct Tim's bounce+ Redefinition of all the comments in English (need to add better computation of friction for the bounce depending on the objects, need to correct gravity so that everything always fall) I also modify the ground is set to 660 and did a function to get it because the limite_sol wasn't so fitting..
+=======
+				//	world.getProj().setPosition(100, 100);// Test to see drawing
+>>>>>>> 8108d50 Correction of Tim's code, implementation of getGround instead of limite_sol, modification of all the comments in english
 
 
             	score.setText("SCORE : " + scoreNb); //Update label score
 
             	repaint(); // Redraw elements
+            	
+            	//Stop the code when there is no more ennemy and will display a window of victory
+            	if(Terrain.victory()) {
+            		//break;
+            	}
 
 				//Avoid Slow down using the game loop
             	try {
